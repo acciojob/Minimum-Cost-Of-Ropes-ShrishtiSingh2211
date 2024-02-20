@@ -1,200 +1,105 @@
 function calculateMinCost() {
   //your code here
-	let inputElement = document.querySelector('#rope-lengths');
+	const ropeLengths = document.getElementById(‘rope-lengths’).value.split(‘,’).map(Number);
 
-    let inputValue = inputElement.value;
+const minHeap = new MinHeap();
 
-    let ropeLengths = inputValue.split(',').map(Number);
+ropeLengths.forEach(length => {
 
-    class MinHeap {
+minHeap.insert(length);
+});
 
-        constructor() {
+let totalCost = 0;
 
-            this.heap = [];
+while (minHeap.size > 1) {
 
-        }
+const rope1 = minHeap.extractMin();
 
-        getParentIndex(i) {
+const rope2 = minHeap.extractMin();
 
-            return Math.floor((i - 1) / 2);
+totalCost += rope1 + rope2;
 
-        }
+minHeap.insert(rope1 + rope2);
+}
 
-        getLeftChildIndex(i) {
+document.getElementById(‘result’).innerText = totalCost;
 
-            return 2 * i + 1;
+}
 
-        }
+class MinHeap {
 
-        getRightChildIndex(i) {
+constructor() {
 
-            return 2 * i + 2;
+this.heap = [];
+}
 
-        }
+size() {
 
-        hasParent(i) {
+return this.heap.length;
+}
 
-            return this.getParentIndex(i) >= 0;
+insert(value) {
 
-        }
+this.heap.push(value);
 
-        hasLeftChild(i) {
+this.bubbleUp(this.heap.length - 1);
+}
 
-            return this.getLeftChildIndex(i) < this.heap.length;
+extractMin() {
 
-        }
+const min = this.heap[0];
 
-        hasRightChild(i) {
+this.heap[0] = this.heap[this.heap.length - 1];
 
-            return this.getRightChildIndex(i) < this.heap.length;
+this.heap.pop();
 
-        }
+this.bubbleDown(0);
 
-        parent(i) {
+return min;
+}
 
-            return this.heap[this.getParentIndex(i)];
+bubbleUp(index) {
 
-        }
+if (index === 0) return;
 
-        leftChild(i) {
+const parentIndex = Math.floor((index - 1) / 2);
 
-            return this.heap[this.getLeftChildIndex(i)];
+if (this.heap[index] < this.heap[parentIndex]) {
 
-        }
+  [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
 
-        rightChild(i) {
+  this.bubbleUp(parentIndex);
 
-            return this.heap[this.getRightChildIndex(i)];
+}
+}
 
-        }
+bubbleDown(index) {
 
-        swap(i, j) {
+const leftChildIndex = 2 * index + 1;
 
-            let temp = this.heap[i];
+const rightChildIndex = 2 * index + 2;
 
-            this.heap[i] = this.heap[j];
+let smallestIndex = index;
 
-            this.heap[j] = temp;
+if (leftChildIndex < this.heap.length && this.heap[leftChildIndex] < this.heap[smallestIndex]) {
 
-        }
+  smallestIndex = leftChildIndex;
 
-        peek() {
+}
 
-            if (this.heap.length == 0) {
+if (rightChildIndex < this.heap.length && this.heap[rightChildIndex] < this.heap[smallestIndex]) {
 
-                throw "Heap is empty";
+  smallestIndex = rightChildIndex;
 
-            } else {
+}
 
-                return this.heap[0];
+if (smallestIndex !== index) {
 
-            }
+  [this.heap[index], this.heap[smallestIndex]] = [this.heap[smallestIndex], this.heap[index]];
 
-        }
+  this.bubbleDown(smallestIndex);
 
-        poll() {
+}
+}
 
-            if (this.heap.length == 0) {
-
-                throw "Heap is empty";
-
-            } else {
-
-                let item = this.heap[0];
-
-                this.heap[0] = this.heap.pop();
-
-                this.heapifyDown();
-
-                return item;
-
-            }
-
-        }
-
-        add(item) {
-
-            this.heap.push(item);
-
-            this.heapifyUp();
-
-        }
-
-        heapifyUp() {
-
-            let index = this.heap.length - 1;
-
-            while (this.hasParent(index) && this.parent(index) > this.heap[index]) {
-
-                this.swap(this.getParentIndex(index), index);
-
-                index = this.getParentIndex(index);
-
-            }
-
-        }
-
-        heapifyDown() {
-
-            let index = 0;
-
-            while (this.hasLeftChild(index)) {
-
-                let smallerChildIndex = this.getLeftChildIndex(index);
-
-                if (this.hasRightChild(index) && this.rightChild(index) < this.leftChild(index)) {
-
-                    smallerChildIndex = this.getRightChildIndex(index);
-
-                }
-
-                if (this.heap[index] < this.heap[smallerChildIndex]) {
-
-                    break;
-
-                } else {
-
-                    this.swap(index, smallerChildIndex);
-
-                }
-
-                index = smallerChildIndex;
-
-            }
-
-        }
-
-    }
-
-    // Calculate minimum cost of ropes using heap
-
-    let minHeap = new MinHeap();
-
-    // Add all rope lengths to the heap
-
-    for (let length of ropeLengths) {
-
-        minHeap.add(length);
-
-    }
-
-    let totalCost = 0;
-
-    // Keep connecting ropes until there is only one rope left
-
-    while (minHeap.heap.length > 1) {
-
-        let firstRope = minHeap.poll();
-
-        let secondRope = minHeap.poll();
-
-        let combinedCost = firstRope + secondRope;
-
-        totalCost += combinedCost;
-
-        minHeap.add(combinedCost);
-
-    }
-
-    document.getElementById('result').innerText = totalCost;     
 }  
